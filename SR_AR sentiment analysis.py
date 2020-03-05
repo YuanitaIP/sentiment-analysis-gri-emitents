@@ -2,8 +2,6 @@
 # coding: utf-8
 
 # In[2]:
-
-
 import os
 from os import path
 import numpy as np
@@ -16,80 +14,55 @@ import sys
 import datetime  
 
 
-# In[ ]:
-
-
-
-
-
 # # Import data
 
 # In[1]:
-
-
 start = datetime.datetime.now()
-list_of_files = os.listdir("/Users/yuanp/Documents/SR_AR_2010-2018txt")
+list_of_files = os.listdir("/Users/yuanp/Documents/trial1/SR_AR_2010-2018txt")
 nlist = len(list_of_files)
 count_data = list(np.arange(0,nlist,1))
 train = pd.DataFrame(np.zeros((nlist, 2)), index=count_data, columns=['Name','Text'])
 
 for file, i in zip(list_of_files, count_data):
-    f = open("/Users/yuanp/Documents/SR_AR_2010-2018txt" + "/" + file, "r")
+    f = open("/Users/yuanp/Documents/trial1/SR_AR_2010-2018txt" + "/" + file, "r")
     train.loc[i, "Name"] = (file[:-4])
     train.loc[i, "Text"] = f.read()
-
 train.head()
 
 
 # In[3]:
-
-
 # train['Ticker'], train['Kode'], train['Year'] = train['Name'].str.split('_', 2).str
 
 
 # In[4]:
-
-
 # train.head()
 
 
 # In[5]:
-
-
 #train['Text']=train['Text'].str.replace('\n',' ')
 #train['Name']=train['Name'].str.replace('_SR','SR')
 #train['Name']=train['Name'].str.replace('_',' ')
 
 
 # In[6]:
-
-
 #train.tail()
 
 
 # In[501]:
-
-
-# train.to_csv("E:/tm/project2/data_mentah.csv",index = True)
+# train.to_csv("/Users/yuanp/Documents/trial1/output/data_mentah.csv",index = True)
 
 
 # In[10]:
-
-
 len(train)
 
 
 # In[11]:
-
-
 train
 
 
 # ## 1.1 Calculate number of words
 
 # In[12]:
-
-
 train['Jumlah Kata'] = train['Text'].apply(lambda x: len(str(x).split(" ")))
 train.head()
 
@@ -97,8 +70,6 @@ train.head()
 # ## 1.2 Calculate number of characters
 
 # In[13]:
-
-
 train['Jumlah Karakter'] = train['Text'].str.len() ## this also includes spaces
 train[['Text','Jumlah Karakter']].head()
 
@@ -106,8 +77,6 @@ train[['Text','Jumlah Karakter']].head()
 # ## 1.3 Calculate the average of word length
 
 # In[14]:
-
-
 def avg_word(sentence):
   words = sentence.split()
   return (sum(len(word) for word in words)/len(words))
@@ -119,8 +88,6 @@ train[['Text','Rata2 panjang kata']].head()
 # ## 1.4 Calculate number of unimportant words
 
 # In[15]:
-
-
 from nltk.corpus import stopwords
 stop = stopwords.words('english')
 
@@ -131,8 +98,6 @@ train[['Text','Kata2 tidak penting']].head()
 # ## 1.5 Calculate number of special characters
 
 # In[16]:
-
-
 train['hastags'] = train['Text'].apply(lambda x: len([x for x in x.split() if x.startswith('#')]))
 train[['Text','hastags']].head()
 
@@ -140,8 +105,6 @@ train[['Text','hastags']].head()
 # ## 1.6 Calculate number of numerics
 
 # In[17]:
-
-
 train['Numerik'] = train['Text'].apply(lambda x: len([x for x in x.split() if x.isdigit()]))
 train[['Text','Numerik']].head()
 
@@ -149,8 +112,6 @@ train[['Text','Numerik']].head()
 # ## 1.7 Calculate number of uppercase words
 
 # In[18]:
-
-
 train['upper'] = train['Text'].apply(lambda x: len([x for x in x.split() if x.isupper()]))
 train[['Text','upper']].head()
 
@@ -161,8 +122,6 @@ train[['Text','upper']].head()
 # ### 2.2 Removing Punctuation
 
 # In[19]:
-
-
 # Lower case
 train['Text'] = train['Text'].apply(lambda x: " ".join(x.lower() for x in x.split()))
 
@@ -189,10 +148,8 @@ train['Text'].head()
 # # 3. Calculate number of positive and negative words
 
 # In[20]:
-
-
-pw = pd.read_fwf("E:/tm/project2/sentiment dictionary/positive-words.txt")
-nw = pd.read_fwf("E:/tm/project2/sentiment dictionary/negative-words.txt")
+pw = pd.read_fwf("/Users/yuanp/Documents/trial1/sentiment dictionary/positive-words.txt")
+nw = pd.read_fwf("/Users/yuanp/Documents/trial1/sentiment dictionary/negative-words.txt")
 train['Positif'] = train['Text'].apply(lambda x: len([x for x in x.split() if x in pw["words"].tolist()]))
 train['Negatif'] = train['Text'].apply(lambda x: len([x for x in x.split() if x in nw["words"].tolist()]))
 train[['Text','Positif','Negatif']].head(10)
@@ -201,8 +158,6 @@ train[['Text','Positif','Negatif']].head(10)
 # # 4. Retrieve popular words each company/sic in sort
 
 # In[21]:
-
-
 freq = []
 i = 0
 nfreq = 0
@@ -228,32 +183,25 @@ freqtable.head(5)
 
 
 # In[22]:
-
-
-freqtable.to_excel("E:/tm/project2/rank_word_ec.xlsx",index=False)
+freqtable.to_excel("/Users/yuanp/Documents/trial1/output/rank_word_ec.xlsx",index=False)
 
 
 # # 5. Retrieve popular words of documents
 
 # In[23]:
-
-
 most_words = pd.Series(' '.join(train['Text']).split()).value_counts()
 most_words = pd.DataFrame(most_words.keys(),columns=["Kata populer"])
-most_words.to_csv("E:/tm/project2/most_wordall.csv",index = True)
+most_words.to_csv("/Users/yuanp/Documents/trial1/output/most_wordall.csv",index = True)
 
 
 # # 6. Sentiment analysis
 
 # In[24]:
-
-
 import textblob
 from textblob import TextBlob
 
 
 # In[25]:
-
 
 train['sentiment'] = train['Text'].apply(lambda x: TextBlob(x).sentiment[0] )
 
@@ -265,50 +213,36 @@ train['sentiment'] = train['Text'].apply(lambda x: TextBlob(x).sentiment[0] )
 
 
 # In[601]:
-
-
-# pw = pd.read_fwf("E:/tm/project2/sentiment dictionary/positive-words.txt")
-# nw = pd.read_fwf("E:/tm/project2/sentiment dictionary/negative-words.txt")
+# pw = pd.read_fwf("/Users/yuanp/Documents/trial1/sentiment dictionary/positive-words.txt")
+# nw = pd.read_fwf("/Users/yuanp/Documents/trial1/sentiment dictionary/negative-words.txt")
 # trainnew['Positif'] = trainnew['Text'].apply(lambda x: len([x for x in x.split() if x in pw["words"].tolist()]))
 # trainnew['Negatif'] = trainnew['Text'].apply(lambda x: len([x for x in x.split() if x in nw["words"].tolist()]))
 
 
 # In[26]:
-
-
 train.head()
 
 
 # In[616]:
-
-
 # new = train[['Ticker','Kode','Year','Positif','Negatif','sentiment']]
 
 
 # In[617]:
-
-
-# new.to_excel("E:/tm/project2/hasil.xlsx",index=False)
+# new.to_excel("/Users/yuanp/Documents/trial1/output/hasil.xlsx",index=False)
 
 
 # In[27]:
-
-
 train['sentiment'] = train['Text'].apply(lambda x: TextBlob(x).sentiment[0] )
 train[['Text','sentiment']].head(10)
 
 
 # In[28]:
-
-
-train.to_excel("E:/tm/project2/summarize.xlsx",index=False)
+train.to_excel("/Users/yuanp/Documents/trial1/output/summarize.xlsx",index=False)
 
 
 # # 7. Calculate number words each category
 
 # In[29]:
-
-
 neg_word = nw # Negative
 ne_word = neg_word.values.tolist()
 rank_neg = train.copy()
@@ -319,19 +253,13 @@ for month in neg_word['words']:
     rank_neg[colname] = rank_neg['Text'].apply(lambda x: len([x for x in x.split() if x in ne_word[i]]))
     i+=1
 
-
 # In[30]:
-
-
 rank_neg = rank_neg.drop(rank_neg.iloc[:,1:12] ,  axis='columns')
 rank_neg.set_index(['Name'], inplace = True)
 rank_neg = rank_neg.transpose()
-rank_neg.to_csv("E:/tm/project2/rank_neg.csv",index=True)
-
+rank_neg.to_csv("/Users/yuanp/Documents/trial1/output/rank_neg.csv",index=True)
 
 # In[31]:
-
-
 pos_word = pw # positive
 po_word = pos_word.values.tolist()
 rank_pos = train.copy()
@@ -344,19 +272,15 @@ for month in pos_word['words']:
 
 
 # In[32]:
-
-
 rank_pos = rank_pos.drop(rank_pos.iloc[:,1:12] ,  axis='columns')
 rank_pos.set_index(['Name'], inplace = True)
 rank_pos = rank_pos.transpose()
-rank_pos.to_csv("E:/tm/project2/rank_pos.csv",index = True)
+rank_pos.to_csv("/Users/yuanp/Documents/trial1/output/rank_pos.csv",index = True)
 
 
 # # 8. System Recomendation
 
 # In[33]:
-
-
 import os
 from os import path
 import numpy as np
@@ -371,8 +295,6 @@ import sys
 
 
 # In[37]:
-
-
 data = graphlab.SFrame(train[['Name','Text']])
 data['Word_count'] = graphlab.text_analytics.count_words(data['Text'])
 tfidf = graphlab.text_analytics.tf_idf(data['Word_count'])
@@ -397,8 +319,6 @@ for i in range (0,c):
 
 
 # In[38]:
-
-
 finish = datetime.datetime.now()
 print "Start Running: ",start
 print "End Running: ",finish
@@ -408,8 +328,6 @@ print "Time Running: ",int((finish - start).total_seconds())/3600,"Jam"
 # # 8. Create wordcloud
 
 # In[ ]:
-
-
 d = path.dirname(__file__) if "__file__" in locals() else os.getcwd()
 alice_mask = np.array(Image.open(path.join(d, "cloud.png")))
 stopwords = set(STOPWORDS)
@@ -420,12 +338,9 @@ for e in train["Name"]:
     d1=train.iloc[i,1]
     i+=1
     wc.generate(d1)
-    wc.to_file(path.join("D:\Career\Paper Text Mining\Wordcloud", e+'.png'))
+    wc.to_file(path.join("/Users/yuanp/Documents/trial1/output/Wordcloud", e+'.png'))
 
 
 # In[ ]:
-
-
 most_words = pd.Series(' '.join(train['Text']).split()).value_counts()
 most_words
-
